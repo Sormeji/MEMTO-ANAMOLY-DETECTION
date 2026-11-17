@@ -1,7 +1,9 @@
-```markdown
-MEMTO: Memory-guided Transformer for Multivariate Time-Series & Tabular Anomaly Detection
+Here is the updated `README.md` including the full **SMD (Server Machine Dataset)** setup, expected `.npy` file shapes (`(708405, 38)` and `(708420, 38)`), and all three execution commands (`--input_c 38 --output_c 38 --anormly_ratio 0.5`):
 
-An adapted and extended implementation of **MEMTO** (*Memory-guided Transformer for Multivariate Time-Series Anomaly Detection*), supporting both standard continuous sensor telemetry benchmarks (**SMD**, **MSL**, **SMAP**) and tabular financial fraud detection (**Credit Card Transactions**).
+```markdown
+# MEMTO: Memory-guided Transformer for Multivariate Time-Series & Tabular Anomaly Detection
+
+An adapted and extended implementation of **MEMTO** (*Memory-guided Transformer for Multivariate Time-Series Anomaly Detection*, NeurIPS 2023), supporting both standard continuous sensor telemetry benchmarks (**SMD**, **MSL**, **SMAP**) and tabular financial fraud detection (**Credit Card Transactions**).
 
 ---
 
@@ -10,7 +12,7 @@ An adapted and extended implementation of **MEMTO** (*Memory-guided Transformer 
 MEMTO combines a Transformer encoder-decoder with a gated memory module initialized via K-Means clustering to learn prototypical normal patterns and detect anomalies via reconstruction and latent memory deviations.
 
 This repository includes:
-- **Continuous Telemetry Pipelines:** Automated preprocessing and 3-stage training/evaluation for **SMD** (38 channels), **MSL** (55 channels), and **SMAP** (25 channels).
+- **Continuous Telemetry Pipelines:** Training and evaluation workflows for **SMD** (38 channels), **MSL** (55 channels), and **SMAP** (25 channels).
 - **Tabular Financial Fraud Adaptation:** Custom preprocessing, feature engineering (Haversine distance, category-relative spending Z-scores, cyclic temporal encoding, `StandardScaler` normalization), and point-wise windowing (`win_size=1`) for **Priyam Choksi's Credit Card Transactions** dataset.
 - **CPU-Compatible Execution:** Patched clustering and data loading workflows for running end-to-end on CPU environments.
 
@@ -42,7 +44,7 @@ MEMTO-main/
 
 * Python 3.10+ (Tested on Python 3.13)
 * PyTorch
-* NumPy, Pandas, Scikit-Learn
+* NumPy, Pandas, Scikit-Learn, Matplotlib
 
 ```bash
 pip install torch numpy pandas scikit-learn matplotlib
@@ -61,7 +63,31 @@ MEMTO uses a **two-stage training workflow** followed by evaluation:
 
 ---
 
-### 1. NASA Telemetry Benchmarks (MSL & SMAP)
+### 1. Server Machine Dataset (`SMD` — `38` channels)
+
+#### Expected Data Files (`./data/SMD/`)
+
+* `SMD_train.npy` — shape `(708405, 38)`
+* `SMD_test.npy` — shape `(708420, 38)`
+* `SMD_test_label.npy` — shape `(708420,)`
+
+#### Run SMD Pipeline
+
+```bash
+# Phase 1 Training
+python main.py --mode train --dataset SMD --data_path ./data/SMD --model_save_path ./checkpoints --device cpu --input_c 38 --output_c 38 --win_size 100 --lr 1e-4 --num_epochs 10
+
+# Memory Initialization & Phase 2 Training
+python main.py --mode memory_initial --dataset SMD --data_path ./data/SMD --model_save_path ./checkpoints --device cpu --input_c 38 --output_c 38 --win_size 100 --lr 1e-4 --num_epochs 10 --memory_initial True --phase_type second_train
+
+# Evaluation
+python main.py --mode test --dataset SMD --data_path ./data/SMD --model_save_path ./checkpoints --device cpu --input_c 38 --output_c 38 --win_size 100 --anormly_ratio 0.5 --phase_type second_train
+
+```
+
+---
+
+### 2. NASA Telemetry Benchmarks (`MSL` & `SMAP`)
 
 #### Prepare Dataset
 
@@ -107,7 +133,7 @@ python main.py --mode test --dataset SMAP --data_path ./data/SMAP --model_save_p
 
 ---
 
-### 2. Credit Card Fraud Detection (`CREDIT_CARD`)
+### 3. Credit Card Fraud Detection (`CREDIT_CARD`)
 
 #### Prepare Dataset
 
@@ -142,10 +168,12 @@ python main.py --mode test --dataset CREDIT_CARD --data_path ./data/CREDIT_CARD 
 
 ## 📊 Key Experimental Findings
 
-| Dataset Type | Window Size | Evaluation Mode | Characteristics |
-| --- | --- | --- | --- |
-| **SMD / MSL / SMAP** | `100` | Segment Point-Adjustment | Continuous multi-step sensor outages (`4%–13%` anomaly rate); high F1 (`~93%–96%`). |
-| **Credit Card Fraud** | `1` | Strict Point-Wise (`step=1`) | Isolated single-row events across interleaved users (`~0.52%` fraud rate); requires feature normalization and `win_size=1` to avoid cross-customer sequence mixing. |
+| Dataset Type | Channels | Window Size | Evaluation Mode | Characteristics |
+| --- | --- | --- | --- | --- |
+| **SMD** | `38` | `100` | Segment Point-Adjustment | Server telemetry metrics (`~4.2%` anomaly rate); continuous multi-step outages. |
+| **MSL** | `55` | `100` | Segment Point-Adjustment | Mars rover sensor channels (`~10.5%` anomaly rate); continuous trajectory anomalies. |
+| **SMAP** | `25` | `100` | Segment Point-Adjustment | Satellite telemetry (`~12.8%` anomaly rate); periodic waveform disruptions. |
+| **Credit Card Fraud** | `16` | `1` | Strict Point-Wise (`step=1`) | Isolated single-row events across interleaved users (`~0.52%` fraud rate); requires feature scaling and `win_size=1` to avoid cross-customer sequence mixing. |
 
 ---
 
@@ -154,7 +182,7 @@ python main.py --mode test --dataset CREDIT_CARD --data_path ./data/CREDIT_CARD 
 Based on the MEMTO paper:
 
 > **MEMTO: Memory-guided Transformer for Multivariate Time-Series Anomaly Detection**
-> *Advances in Neural Information Processing Systems (NeurIPS)*
+> Junho Song, Keonwoo Kim, Jeonglyul Oh, Sungzoon Cho — *NeurIPS 2023*
 
 ```
 
