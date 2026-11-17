@@ -1,8 +1,7 @@
-Here is the updated `README.md` including the full **SMD (Server Machine Dataset)** setup, expected `.npy` file shapes (`(708405, 38)` and `(708420, 38)`), and all three execution commands (`--input_c 38 --output_c 38 --anormly_ratio 0.5`):
 
+
+## MEMTO: Memory-guided Transformer for Multivariate Time-Series & Tabular Anomaly Detection
 ```markdown
-# MEMTO: Memory-guided Transformer for Multivariate Time-Series & Tabular Anomaly Detection
-
 An adapted and extended implementation of **MEMTO** (*Memory-guided Transformer for Multivariate Time-Series Anomaly Detection*, NeurIPS 2023), supporting both standard continuous sensor telemetry benchmarks (**SMD**, **MSL**, **SMAP**) and tabular financial fraud detection (**Credit Card Transactions**).
 
 ---
