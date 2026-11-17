@@ -1,5 +1,5 @@
 ```markdown
-# MEMTO: Memory-guided Transformer for Multivariate Time-Series & Tabular Anomaly Detection
+MEMTO: Memory-guided Transformer for Multivariate Time-Series & Tabular Anomaly Detection
 
 An adapted and extended implementation of **MEMTO** (*Memory-guided Transformer for Multivariate Time-Series Anomaly Detection*), supporting both standard continuous sensor telemetry benchmarks (**SMD**, **MSL**, **SMAP**) and tabular financial fraud detection (**Credit Card Transactions**).
 
